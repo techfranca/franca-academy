@@ -1,0 +1,95 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --green: #7de08d;
+    --green-light: #f2fcf4;
+    --green-light-active: #d7f5dc;
+    --green-hover: #71ca7f;
+    --green-dark: #5ea86a;
+    --navy: #081534;
+    --navy-light: #e6e8eb;
+    --navy-light-active: #b2b6c0;
+    --navy-hover: #07132f;
+    --navy-dark: #061027;
+    --sage: #598F74;
+    --white: #ffffff;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: var(--font-montserrat), system-ui, sans-serif;
+    color: var(--navy);
+    background-color: var(--white);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-poppins), system-ui, sans-serif;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-brand-green text-brand-navy font-poppins font-bold px-6 py-3 rounded-xl
+           hover:bg-brand-green-hover active:scale-[0.98] transition-all duration-200
+           focus:outline-none focus:ring-2 focus:ring-brand-green/50 focus:ring-offset-2;
+  }
+
+  .btn-secondary {
+    @apply bg-brand-navy text-white font-poppins font-bold px-6 py-3 rounded-xl
+           hover:bg-brand-navy-hover active:scale-[0.98] transition-all duration-200
+           focus:outline-none focus:ring-2 focus:ring-brand-navy/50 focus:ring-offset-2;
+  }
+
+  .btn-outline {
+    @apply border-2 border-brand-navy/15 text-brand-navy font-poppins font-semibold px-6 py-3 rounded-xl
+           hover:border-brand-navy hover:bg-brand-navy hover:text-white active:scale-[0.98] transition-all duration-200
+           focus:outline-none focus:ring-2 focus:ring-brand-navy/50 focus:ring-offset-2;
+  }
+
+  .input-field {
+    @apply w-full px-4 py-3 rounded-xl border border-black/10 bg-white
+           text-brand-navy placeholder:text-brand-navy-light-active
+           focus:outline-none focus:ring-2 focus:ring-brand-green/40 focus:border-brand-green
+           font-montserrat transition-all duration-200;
+  }
+
+  .card {
+    @apply bg-white rounded-2xl border border-black/[0.06] shadow-[0_1px_3px_rgba(0,0,0,0.04)]
+           hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] transition-all duration-300;
+  }
+
+  .card-static {
+    @apply bg-white rounded-2xl border border-black/[0.06] shadow-[0_1px_3px_rgba(0,0,0,0.04)];
+  }
+
+  .page-title {
+    @apply font-poppins text-[24px] sm:text-[28px] font-bold text-brand-navy leading-tight;
+  }
+
+  .page-subtitle {
+    @apply text-[14px] sm:text-[15px] text-brand-navy-light-active font-montserrat leading-relaxed;
+  }
+}
+
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--navy-light-active); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--navy); }
+
+:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+
+main { animation: fadeIn 0.15s ease-out; }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(3px); }
+  to { opacity: 1; transform: translateY(0); }
+}

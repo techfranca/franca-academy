@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir -p \"C:\\\\Users\\\\davidson\\\\Documents\\\\[DOCS] Workspace\\\\[DOCS] - Franca Assessoria\\\\franca-academy\\\\app\\\\\\(dashboard\\)\\\\admin\\\\cursos\\\\novo\")",
+      "Bash(mkdir -p \"C:\\\\Users\\\\davidson\\\\Documents\\\\[DOCS] Workspace\\\\[DOCS] - Franca Assessoria\\\\franca-academy\\\\app\\\\\\(dashboard\\)\\\\admin\\\\cursos\\\\[courseId]\\\\modulos\\\\novo\")",
+      "Bash(mkdir -p \"C:\\\\Users\\\\davidson\\\\Documents\\\\[DOCS] Workspace\\\\[DOCS] - Franca Assessoria\\\\franca-academy\\\\app\\\\\\(dashboard\\)\\\\admin\\\\cursos\\\\[courseId]\\\\modulos\\\\[moduleId]\\\\aulas\\\\nova\")",
+      "Bash(mkdir -p \"C:\\\\Users\\\\davidson\\\\Documents\\\\[DOCS] Workspace\\\\[DOCS] - Franca Assessoria\\\\franca-academy\\\\app\\\\\\(dashboard\\)\\\\admin\\\\cursos\\\\[courseId]\\\\modulos\\\\[moduleId]\\\\aulas\\\\[lessonId]\")",
+      "Bash(mkdir -p \"C:\\\\Users\\\\davidson\\\\Documents\\\\[DOCS] Workspace\\\\[DOCS] - Franca Assessoria\\\\franca-academy\\\\components\\\\admin\")",
+      "Bash(node tutorial-admin.js \"Tutorial-Admin-Franca-Academy.docx\")",
+      "Bash(npm install -g docx)",
+      "Bash(npm root -g)",
+      "Bash(NODE_PATH=\"C:\\\\Users\\\\davidson\\\\AppData\\\\Roaming\\\\npm\\\\node_modules\" node tutorial-admin.js \"Tutorial-Admin-Franca-Academy.docx\")",
+      "Bash(python scripts/office/validate.py \"C:\\\\Users\\\\davidson\\\\Documents\\\\[DOCS] Workspace\\\\[DOCS] - Franca Assessoria\\\\franca-academy\\\\Tutorial-Admin-Franca-Academy.docx\")",
+      "Bash(pip install defusedxml lxml)",
+      "Bash(test -f \"C:\\\\Users\\\\davidson\\\\Documents\\\\[DOCS] Workspace\\\\[DOCS] - Franca Assessoria\\\\franca-academy\\\\vercel.json\")",
+      "Bash(mkdir -p \"C:\\\\Users\\\\davidson\\\\Documents\\\\[DOCS] Workspace\\\\[DOCS] - Franca Assessoria\\\\franca-academy\\\\app\\\\\\(dashboard\\)\\\\admin\\\\servicos\\\\novo\")",
+      "Bash(mkdir -p \"C:\\\\Users\\\\davidson\\\\Documents\\\\[DOCS] Workspace\\\\[DOCS] - Franca Assessoria\\\\franca-academy\\\\app\\\\\\(dashboard\\)\\\\admin\\\\servicos\\\\[serviceId]\")",
+      "Bash(find \"/c/Users/davidson/Documents/[DOCS] Workspace/[DOCS] - Franca Assessoria/franca-academy/app/\\(dashboard\\)/admin/servicos/\" -type f)",
+      "Bash(find \"/c/Users/davidson/Documents/[DOCS] Workspace/[DOCS] - Franca Assessoria/franca-academy/app/\\(dashboard\\)/admin/servicos\" -type f)"
+    ]
+  }
+}
