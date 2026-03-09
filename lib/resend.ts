@@ -16,9 +16,13 @@ export async function sendWelcomeEmail({ to, name, password, courseName }: Welco
   const firstName = name.split(' ')[0]
 
   return getResend().emails.send({
-    from: process.env.RESEND_FROM_EMAIL || 'Franca Academy <noreply@francaassessoria.com>',
+    from: process.env.RESEND_FROM_EMAIL || 'Franca Academy <contato@francaassessoria.com>',
     to,
-    subject: `Bem-vindo(a) à Franca Academy! Seu acesso ao ${courseName}`,
+    subject: `Seu acesso ao ${courseName} está pronto`,
+    headers: {
+      'List-Unsubscribe': `<mailto:contato@francaassessoria.com?subject=unsubscribe>`,
+      'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+    },
     html: `
 <!DOCTYPE html>
 <html>
@@ -80,6 +84,9 @@ export async function sendWelcomeEmail({ to, name, password, courseName }: Welco
       <p style="color:#b2b6c0;font-size:12px;margin:0;">
         &copy; ${new Date().getFullYear()} Franca Assessoria. Todos os direitos reservados.
       </p>
+      <p style="color:#6b7280;font-size:11px;margin:8px 0 0;">
+        <a href="mailto:contato@francaassessoria.com?subject=unsubscribe" style="color:#6b7280;">Cancelar recebimento</a>
+      </p>
     </div>
   </div>
 </body>
@@ -98,7 +105,7 @@ export async function sendPasswordResetEmail({ to, name, resetLink }: PasswordRe
   const firstName = name.split(' ')[0]
 
   return getResend().emails.send({
-    from: process.env.RESEND_FROM_EMAIL || 'Franca Academy <noreply@francaassessoria.com>',
+    from: process.env.RESEND_FROM_EMAIL || 'Franca Academy <contato@francaassessoria.com>',
     to,
     subject: 'Redefinir sua senha - Franca Academy',
     html: `
