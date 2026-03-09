@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import { ArrowLeft, Mail } from 'lucide-react'
 
@@ -10,18 +9,19 @@ export default function ForgotPasswordPage() {
   const [sent, setSent] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const supabase = createClient()
 
   async function handleReset(e: React.FormEvent) {
     e.preventDefault()
     setError('')
     setLoading(true)
 
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/api/auth/callback?next=/redefinir-senha`,
+    const res = await fetch('/api/auth/reset-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
     })
 
-    if (error) {
+    if (!res.ok) {
       setError('Erro ao enviar email. Tente novamente.')
       setLoading(false)
       return
