@@ -6,7 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import { Trash2 } from 'lucide-react'
 
 interface DeleteButtonProps {
-  table: 'courses' | 'modules' | 'lessons'
+  table: 'courses' | 'modules' | 'lessons' | 'services'
   id: string
   redirectTo: string
   label?: string
