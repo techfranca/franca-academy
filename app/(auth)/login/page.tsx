@@ -34,7 +34,7 @@ export default function LoginPage() {
 
   return (
     <div>
-      <div className="mb-6">
+      <div className="mb-6 text-center">
         <h1 className="font-poppins font-bold text-[20px] text-brand-navy mb-1">
           Entrar na conta
         </h1>
@@ -43,41 +43,27 @@ export default function LoginPage() {
         </p>
       </div>
 
-      <form onSubmit={handleLogin} className="space-y-4">
+      <form onSubmit={handleLogin} className="space-y-3">
 
-        <div>
-          <label htmlFor="email" className="block font-montserrat text-[12px] font-semibold text-brand-navy mb-1.5 uppercase tracking-wide">
-            Email
-          </label>
-          <div className="relative">
-            <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-brand-navy-light-active pointer-events-none">
-              <Mail size={15} />
-            </div>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="input-field pl-10 text-[14px]"
-              placeholder="seu@email.com"
-              required
-              autoComplete="email"
-            />
+        {/* Email */}
+        <div className="relative">
+          <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-brand-navy-light-active pointer-events-none">
+            <Mail size={15} />
           </div>
+          <input
+            id="email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="input-field pl-10 text-[14px] bg-[#f5f7f6] border-transparent focus:bg-white"
+            placeholder="Email"
+            required
+            autoComplete="email"
+          />
         </div>
 
+        {/* Senha */}
         <div>
-          <div className="flex items-center justify-between mb-1.5">
-            <label htmlFor="password" className="font-montserrat text-[12px] font-semibold text-brand-navy uppercase tracking-wide">
-              Senha
-            </label>
-            <Link
-              href="/esqueci-senha"
-              className="font-montserrat text-[12px] text-brand-sage hover:text-brand-green-dark transition-colors"
-            >
-              Esqueceu a senha?
-            </Link>
-          </div>
           <div className="relative">
             <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-brand-navy-light-active pointer-events-none">
               <Lock size={15} />
@@ -87,8 +73,8 @@ export default function LoginPage() {
               type={showPassword ? 'text' : 'password'}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="input-field pl-10 pr-12 text-[14px]"
-              placeholder="••••••••"
+              className="input-field pl-10 pr-12 text-[14px] bg-[#f5f7f6] border-transparent focus:bg-white"
+              placeholder="Senha"
               required
               autoComplete="current-password"
             />
@@ -100,6 +86,16 @@ export default function LoginPage() {
             >
               {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
             </button>
+          </div>
+
+          {/* Esqueceu a senha - abaixo do campo, alinhado à direita */}
+          <div className="flex justify-end mt-1.5">
+            <Link
+              href="/esqueci-senha"
+              className="font-montserrat text-[12px] text-brand-sage hover:text-brand-green-dark transition-colors"
+            >
+              Esqueceu a senha?
+            </Link>
           </div>
         </div>
 

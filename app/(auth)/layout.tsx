@@ -8,24 +8,22 @@ export default function AuthLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="min-h-dvh bg-[#f4f7f5] flex flex-col items-center justify-center p-4">
+    <div className="min-h-dvh bg-gradient-to-b from-[#e2f5e9] via-[#eef8f2] to-[#e8f2ec] flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8">
 
-      {/* Brand */}
-      <div className="flex flex-col items-center mb-8">
-        <div className="w-12 h-12 rounded-2xl bg-brand-navy flex items-center justify-center mb-4 shadow-md">
-          <Image src="/logo.png" alt="Franca Academy" width={32} height={32} />
+      <div className="w-full max-w-[420px] flex flex-col items-center">
+
+        {/* Logo flutuando acima do card */}
+        <div className="w-[60px] h-[60px] rounded-[18px] bg-brand-navy flex items-center justify-center shadow-[0_8px_24px_rgba(8,21,52,0.22)] mb-[-30px] z-10 border-4 border-white/80">
+          <Image src="/logo.png" alt="Franca Academy" width={34} height={34} />
         </div>
-        <p className="font-poppins font-bold text-brand-navy text-[18px] leading-none mb-0.5">
-          Franca Academy
-        </p>
-        <p className="font-montserrat text-[11px] text-brand-sage tracking-[0.14em] uppercase">
-          Plataforma exclusiva
-        </p>
-      </div>
 
-      {/* Card */}
-      <div className="w-full max-w-[400px] bg-white rounded-2xl shadow-[0_2px_24px_rgba(8,21,52,0.07)] border border-black/[0.05] p-8">
-        {children}
+        {/* Card com borda gradiente sutil */}
+        <div className="w-full p-[1px] rounded-2xl bg-gradient-to-br from-brand-green/50 via-brand-sage/20 to-transparent shadow-[0_12px_48px_rgba(8,21,52,0.10)]">
+          <div className="w-full bg-white rounded-[calc(1rem-1px)] pt-12 pb-8 px-8">
+            {children}
+          </div>
+        </div>
+
       </div>
 
       {/* Footer */}

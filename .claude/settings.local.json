@@ -16,7 +16,13 @@
       "Bash(mkdir -p \"C:\\\\Users\\\\davidson\\\\Documents\\\\[DOCS] Workspace\\\\[DOCS] - Franca Assessoria\\\\franca-academy\\\\app\\\\\\(dashboard\\)\\\\admin\\\\servicos\\\\novo\")",
       "Bash(mkdir -p \"C:\\\\Users\\\\davidson\\\\Documents\\\\[DOCS] Workspace\\\\[DOCS] - Franca Assessoria\\\\franca-academy\\\\app\\\\\\(dashboard\\)\\\\admin\\\\servicos\\\\[serviceId]\")",
       "Bash(find \"/c/Users/davidson/Documents/[DOCS] Workspace/[DOCS] - Franca Assessoria/franca-academy/app/\\(dashboard\\)/admin/servicos/\" -type f)",
-      "Bash(find \"/c/Users/davidson/Documents/[DOCS] Workspace/[DOCS] - Franca Assessoria/franca-academy/app/\\(dashboard\\)/admin/servicos\" -type f)"
+      "Bash(find \"/c/Users/davidson/Documents/[DOCS] Workspace/[DOCS] - Franca Assessoria/franca-academy/app/\\(dashboard\\)/admin/servicos\" -type f)",
+      "mcp__supabase__list_projects",
+      "mcp__supabase__execute_sql",
+      "Bash(cd \"C:\\\\Users\\\\davidson\\\\Documents\\\\[DOCS] Workspace\\\\[DOCS] - Franca Assessoria\\\\franca-academy\" && npm install sonner)",
+      "Bash(cd \"C:\\\\Users\\\\davidson\\\\Documents\\\\[DOCS] Workspace\\\\[DOCS] - Franca Assessoria\\\\franca-academy\" && npm audit --json 2>/dev/null | python -c \"import sys,json; d=json.load\\(sys.stdin\\); vulns=d.get\\('vulnerabilities',{}\\); [print\\(k,v.get\\('severity'\\),v.get\\('via'\\)\\) for k,v in vulns.items\\(\\)]\" 2>/dev/null || npm audit 2>&1 | head -20)",
+      "mcp__supabase__get_logs",
+      "Bash(cd \"C:\\\\workspace - dev\\\\Franca Assessoria - [Interno]\\\\franca-academy\" && npx tsc --noEmit 2>&1)"
     ]
   }
 }
