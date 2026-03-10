@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Trash2 } from 'lucide-react'
+import { toast } from 'sonner'
 
 interface DeleteButtonProps {
   table: 'courses' | 'modules' | 'lessons' | 'services'
@@ -20,9 +21,15 @@ export function DeleteButton({ table, id, redirectTo, label = 'Excluir' }: Delet
 
   async function handleDelete() {
     setDeleting(true)
-    await supabase.from(table).delete().eq('id', id)
-    router.push(redirectTo)
-    router.refresh()
+    const { error } = await supabase.from(table).delete().eq('id', id)
+    if (error) {
+      toast.error('Erro ao excluir. Tente novamente.')
+      setDeleting(false)
+      setConfirming(false)
+    } else {
+      router.push(redirectTo)
+      router.refresh()
+    }
   }
 
   if (confirming) {

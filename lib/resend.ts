@@ -7,12 +7,11 @@ function getResend() {
 interface WelcomeEmailParams {
   to: string
   name: string
-  password: string
+  accessLink: string
   courseName: string
 }
 
-export async function sendWelcomeEmail({ to, name, password, courseName }: WelcomeEmailParams) {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://academy.francaassessoria.com'
+export async function sendWelcomeEmail({ to, name, accessLink, courseName }: WelcomeEmailParams) {
   const firstName = name.split(' ')[0]
 
   return getResend().emails.send({
@@ -44,35 +43,22 @@ export async function sendWelcomeEmail({ to, name, password, courseName }: Welco
         Olá, ${firstName}! 🎉
       </h2>
 
-      <p style="color:#081534;font-size:16px;line-height:1.6;margin:0 0 16px;">
+      <p style="color:#081534;font-size:16px;line-height:1.6;margin:0 0 24px;">
         Sua compra do <strong>${courseName}</strong> foi confirmada com sucesso!
-        Abaixo estão seus dados de acesso à plataforma:
-      </p>
-
-      <!-- Credentials Box -->
-      <div style="background-color:#f2fcf4;border:2px solid #7de08d;border-radius:8px;padding:24px;margin:24px 0;">
-        <p style="color:#081534;font-size:14px;margin:0 0 12px;font-weight:600;text-transform:uppercase;letter-spacing:1px;">
-          Seus dados de acesso
-        </p>
-        <p style="color:#081534;font-size:16px;margin:0 0 8px;">
-          <strong>Email:</strong> ${to}
-        </p>
-        <p style="color:#081534;font-size:16px;margin:0;">
-          <strong>Senha:</strong> ${password}
-        </p>
-      </div>
-
-      <p style="color:#598F74;font-size:14px;line-height:1.5;margin:0 0 24px;">
-        Recomendamos que você altere sua senha após o primeiro acesso.
+        Clique no botão abaixo para criar sua senha e acessar a plataforma:
       </p>
 
       <!-- CTA Button -->
       <div style="text-align:center;margin:32px 0;">
-        <a href="${appUrl}/login"
+        <a href="${accessLink}"
            style="background-color:#7de08d;color:#081534;padding:16px 40px;border-radius:8px;text-decoration:none;font-weight:700;font-size:16px;display:inline-block;font-family:'Poppins',Arial,sans-serif;">
-          Acessar Plataforma
+          Criar minha senha
         </a>
       </div>
+
+      <p style="color:#598F74;font-size:14px;line-height:1.5;margin:0 0 8px;text-align:center;">
+        O link é válido por 24 horas.
+      </p>
 
       <p style="color:#b2b6c0;font-size:14px;line-height:1.5;margin:0;text-align:center;">
         Se você não realizou esta compra, entre em contato conosco.

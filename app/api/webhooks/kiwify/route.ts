@@ -25,32 +25,38 @@ interface KiwifyWebhookPayload {
   signature?: string
 }
 
-function verifyKiwifySignature(payload: string, signature: string): boolean {
-  const secret = process.env.KIWIFY_WEBHOOK_SECRET
-  if (!secret) return true // If no secret configured, skip verification
-
+function verifyKiwifySignature(payload: string, signature: string, secret: string): boolean {
   const expectedSignature = crypto
     .createHmac('sha256', secret)
     .update(payload)
     .digest('hex')
 
-  return crypto.timingSafeEqual(
-    Buffer.from(signature),
-    Buffer.from(expectedSignature)
-  )
+  const sigBuffer = Buffer.from(signature)
+  const expectedBuffer = Buffer.from(expectedSignature)
+
+  if (sigBuffer.length !== expectedBuffer.length) return false
+
+  return crypto.timingSafeEqual(sigBuffer, expectedBuffer)
 }
 
 export async function POST(request: Request) {
   try {
+    const secret = process.env.KIWIFY_WEBHOOK_SECRET
+    if (!secret) {
+      console.error('KIWIFY_WEBHOOK_SECRET is not configured')
+      return NextResponse.json({ error: 'Webhook not configured' }, { status: 500 })
+    }
+
     const rawBody = await request.text()
     const body: KiwifyWebhookPayload = JSON.parse(rawBody)
 
-    // Verify signature if configured
     const signature = request.headers.get('x-kiwify-signature') || body.signature || ''
-    if (process.env.KIWIFY_WEBHOOK_SECRET && signature) {
-      if (!verifyKiwifySignature(rawBody, signature)) {
-        return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
-      }
+    if (!signature) {
+      return NextResponse.json({ error: 'Missing signature' }, { status: 401 })
+    }
+
+    if (!verifyKiwifySignature(rawBody, signature, secret)) {
+      return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
     }
 
     const supabase = createServiceClient()
@@ -84,16 +90,16 @@ export async function POST(request: Request) {
       let userId: string
       let password: string | null = null
 
+      let isNewUser = false
+
       if (existingUser) {
         // User already exists, just add the purchase
         userId = existingUser.id
       } else {
-        // Create new user with generated password
-        password = generatePassword(10)
-
+        // Create new user with a random password (never shared with the user)
         const { data: newUser, error: createError } = await supabase.auth.admin.createUser({
           email,
-          password,
+          password: generatePassword(16),
           email_confirm: true,
           user_metadata: { full_name: name },
         })
@@ -107,6 +113,7 @@ export async function POST(request: Request) {
         }
 
         userId = newUser.user.id
+        isNewUser = true
       }
 
       // 3. Create purchase record (upsert to avoid duplicates)
@@ -125,15 +132,24 @@ export async function POST(request: Request) {
         console.error('Error creating purchase:', purchaseError)
       }
 
-      // 4. Send welcome email (only for new users)
-      if (password) {
+      // 4. Send welcome email with first-access link (only for new users)
+      if (isNewUser) {
         try {
-          await sendWelcomeEmail({
-            to: email,
-            name,
-            password,
-            courseName: course.title,
+          const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
+            type: 'recovery',
+            email,
           })
+
+          if (linkError || !linkData?.properties?.action_link) {
+            console.error('Error generating access link:', linkError)
+          } else {
+            await sendWelcomeEmail({
+              to: email,
+              name,
+              accessLink: linkData.properties.action_link,
+              courseName: course.title,
+            })
+          }
         } catch (emailError) {
           console.error('Error sending welcome email:', emailError)
           // Don't fail the webhook for email errors
@@ -144,7 +160,7 @@ export async function POST(request: Request) {
         message: 'Purchase processed successfully',
         userId,
         courseId: course.id,
-        isNewUser: !!password,
+        isNewUser,
       })
     }
 

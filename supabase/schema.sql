@@ -124,11 +124,22 @@ CREATE POLICY "Authenticated users can view modules"
   TO authenticated
   USING (TRUE);
 
--- Lessons (all authenticated users can view)
-CREATE POLICY "Authenticated users can view lessons"
+-- Lessons: aulas gratuitas são visíveis para todos autenticados;
+-- aulas pagas só para quem comprou o curso (ou admin)
+CREATE POLICY "Users can view lessons they have access to"
   ON public.lessons FOR SELECT
   TO authenticated
-  USING (TRUE);
+  USING (
+    is_free = TRUE
+    OR public.is_admin()
+    OR EXISTS (
+      SELECT 1
+      FROM public.modules m
+      JOIN public.user_purchases up ON up.course_id = m.course_id
+      WHERE m.id = lessons.module_id
+        AND up.user_id = auth.uid()
+    )
+  );
 
 -- User Purchases (users can view own)
 CREATE POLICY "Users can view own purchases"

@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { CheckCircle2, ChevronLeft, ChevronRight, Heart } from 'lucide-react'
+import { toast } from 'sonner'
 
 interface LessonSidebarProps {
   lessonId: string
@@ -33,17 +34,20 @@ export function LessonSidebar({
     setLoading(true)
 
     if (completed) {
-      // Unmark
-      await supabase
+      const { error } = await supabase
         .from('lesson_progress')
         .update({ completed: false, completed_at: null })
         .eq('lesson_id', lessonId)
 
-      setCompleted(false)
+      if (error) {
+        toast.error('Erro ao atualizar progresso. Tente novamente.')
+      } else {
+        setCompleted(false)
+        router.refresh()
+      }
     } else {
-      // Mark complete - upsert
       const { data: { user } } = await supabase.auth.getUser()
-      await supabase
+      const { error } = await supabase
         .from('lesson_progress')
         .upsert({
           user_id: user!.id,
@@ -54,37 +58,50 @@ export function LessonSidebar({
           onConflict: 'user_id,lesson_id',
         })
 
-      setCompleted(true)
+      if (error) {
+        toast.error('Erro ao marcar aula como concluída. Tente novamente.')
+      } else {
+        setCompleted(true)
+        router.refresh()
+      }
     }
 
     setLoading(false)
-    router.refresh()
   }
 
   async function toggleFavorite() {
     setFavLoading(true)
 
     if (favorited) {
-      await supabase
+      const { error } = await supabase
         .from('lesson_favorites')
         .delete()
         .eq('lesson_id', lessonId)
 
-      setFavorited(false)
+      if (error) {
+        toast.error('Erro ao remover dos favoritos. Tente novamente.')
+      } else {
+        setFavorited(false)
+        router.refresh()
+      }
     } else {
       const { data: { user } } = await supabase.auth.getUser()
-      await supabase
+      const { error } = await supabase
         .from('lesson_favorites')
         .insert({
           user_id: user!.id,
           lesson_id: lessonId,
         })
 
-      setFavorited(true)
+      if (error) {
+        toast.error('Erro ao adicionar aos favoritos. Tente novamente.')
+      } else {
+        setFavorited(true)
+        router.refresh()
+      }
     }
 
     setFavLoading(false)
-    router.refresh()
   }
 
   return (
