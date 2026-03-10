@@ -26,7 +26,7 @@ export default async function AdminDashboard() {
 
   return (
     <div>
-      <div className="mb-8 flex items-center justify-between">
+      <div className="mb-8 flex items-start justify-between gap-4">
         <div>
           <h1 className="page-title mb-1">Painel Admin</h1>
           <p className="page-subtitle">Gerencie cursos, módulos e aulas.</p>

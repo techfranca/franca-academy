@@ -104,8 +104,31 @@ export function Sidebar() {
   useEffect(() => { setMobileOpen(false) }, [pathname])
 
   useEffect(() => {
-    document.body.style.overflow = mobileOpen ? 'hidden' : ''
-    return () => { document.body.style.overflow = '' }
+    if (mobileOpen) {
+      const scrollY = window.scrollY
+      document.body.dataset.scrollY = String(scrollY)
+      document.body.style.position = 'fixed'
+      document.body.style.top = `-${scrollY}px`
+      document.body.style.left = '0'
+      document.body.style.right = '0'
+      document.body.style.overflow = 'hidden'
+    } else {
+      const scrollY = parseInt(document.body.dataset.scrollY || '0')
+      document.body.style.position = ''
+      document.body.style.top = ''
+      document.body.style.left = ''
+      document.body.style.right = ''
+      document.body.style.overflow = ''
+      window.scrollTo(0, scrollY)
+      delete document.body.dataset.scrollY
+    }
+    return () => {
+      document.body.style.position = ''
+      document.body.style.top = ''
+      document.body.style.left = ''
+      document.body.style.right = ''
+      document.body.style.overflow = ''
+    }
   }, [mobileOpen])
 
   async function handleLogout() {
@@ -247,7 +270,7 @@ export function Sidebar() {
     <>
       {/* Mobile top bar */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-brand-navy/95 backdrop-blur-md border-b border-white/10 px-4 py-3 flex items-center gap-3">
-        <button onClick={() => setMobileOpen(true)} className="p-1.5 text-white rounded-md hover:bg-white/10 transition-colors" aria-label="Abrir menu">
+        <button onClick={() => setMobileOpen(true)} className="flex items-center justify-center w-11 h-11 text-white rounded-md hover:bg-white/10 transition-colors -ml-1.5" aria-label="Abrir menu">
           <Menu size={22} />
         </button>
         <Image src="/logo.png" alt="Franca" width={28} height={28} />
@@ -268,7 +291,7 @@ export function Sidebar() {
         'lg:hidden fixed left-0 top-0 bottom-0 w-[280px] bg-brand-navy z-50 transform transition-transform duration-300 ease-out shadow-2xl',
         mobileOpen ? 'translate-x-0' : '-translate-x-full'
       )}>
-        <button onClick={() => setMobileOpen(false)} className="absolute top-5 right-4 p-1 text-brand-navy-light-active/60 hover:text-white transition-colors" aria-label="Fechar menu">
+        <button onClick={() => setMobileOpen(false)} className="absolute top-3 right-3 flex items-center justify-center w-11 h-11 text-brand-navy-light-active/60 hover:text-white transition-colors" aria-label="Fechar menu">
           <X size={20} />
         </button>
         {sidebarContent}

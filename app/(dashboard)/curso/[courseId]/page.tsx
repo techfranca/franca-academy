@@ -123,7 +123,7 @@ export default async function CourseDetailPage({ params }: Props) {
           )}
 
           <div className="flex-1">
-            <h1 className="font-poppins text-heading-2 text-brand-navy mb-3">
+            <h1 className="font-poppins text-[22px] sm:text-[28px] lg:text-heading-2 text-brand-navy mb-3">
               {course.title}
             </h1>
             {course.description && (
@@ -132,7 +132,7 @@ export default async function CourseDetailPage({ params }: Props) {
               </p>
             )}
 
-            <div className="flex items-center gap-6 mb-6 text-body-small text-brand-navy-light-active">
+            <div className="flex flex-wrap items-center gap-3 sm:gap-6 mb-6 text-body-small text-brand-navy-light-active">
               <span className="flex items-center gap-1.5">
                 <PlayCircle size={16} />
                 {totalLessons} aulas

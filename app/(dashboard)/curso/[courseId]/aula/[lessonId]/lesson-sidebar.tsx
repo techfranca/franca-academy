@@ -105,13 +105,13 @@ export function LessonSidebar({
   }
 
   return (
-    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mt-8 pt-6 border-t border-brand-navy-light/30">
+    <div className="flex flex-col gap-4 mt-8 pt-6 border-t border-brand-navy-light/30">
       {/* Mark complete + Favorite */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 flex-wrap">
         <button
           onClick={toggleComplete}
           disabled={loading}
-          className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-montserrat text-body-small font-semibold transition-all duration-200 ${
+          className={`flex items-center gap-2 px-4 py-2.5 min-h-[44px] rounded-lg font-montserrat text-body-small font-semibold transition-all duration-200 ${
             completed
               ? 'bg-brand-green-light text-brand-green-dark border-2 border-brand-green'
               : 'bg-brand-navy-light/50 text-brand-navy hover:bg-brand-green-light hover:text-brand-green-dark border-2 border-transparent'
@@ -123,12 +123,12 @@ export function LessonSidebar({
         <button
           onClick={toggleFavorite}
           disabled={favLoading}
-          className={`flex items-center justify-center w-[42px] h-[42px] rounded-lg transition-all duration-200 border-2 ${
+          className={`flex items-center justify-center w-11 h-11 rounded-lg transition-all duration-200 border-2 ${
             favorited
               ? 'bg-red-50 text-red-500 border-red-300 hover:bg-red-100'
               : 'bg-brand-navy-light/50 text-brand-navy-light-active border-transparent hover:bg-red-50 hover:text-red-400 hover:border-red-200'
           }`}
-          title={favorited ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
+          aria-label={favorited ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
         >
           <Heart size={18} fill={favorited ? 'currentColor' : 'none'} />
         </button>
@@ -139,7 +139,7 @@ export function LessonSidebar({
         {prevLessonId && (
           <a
             href={`/curso/${courseId}/aula/${prevLessonId}`}
-            className="flex items-center gap-1 px-4 py-2.5 rounded-lg text-body-small font-semibold text-brand-navy-light-active hover:text-brand-navy hover:bg-brand-navy-light/30 transition-colors"
+            className="flex items-center gap-1 px-4 min-h-[44px] rounded-lg text-body-small font-semibold text-brand-navy-light-active hover:text-brand-navy hover:bg-brand-navy-light/30 transition-colors"
           >
             <ChevronLeft size={16} />
             Anterior

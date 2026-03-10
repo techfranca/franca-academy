@@ -125,7 +125,7 @@ export default function ProfilePage() {
             <label htmlFor="new-password" className="block text-[13px] font-semibold text-brand-navy mb-1.5">Nova senha</label>
             <div className="relative">
               <input id="new-password" type={showPassword ? 'text' : 'password'} value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="input-field pr-12" placeholder="Mínimo 6 caracteres" required minLength={6} />
-              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-brand-navy-light-active hover:text-brand-navy">
+              <button type="button" onClick={() => setShowPassword(!showPassword)} aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'} className="absolute right-1 top-1/2 -translate-y-1/2 w-11 h-11 flex items-center justify-center text-brand-navy-light-active hover:text-brand-navy">
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>

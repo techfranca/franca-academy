@@ -3,6 +3,7 @@ import { redirect, notFound } from 'next/navigation'
 import { getBunnyEmbedUrl } from '@/lib/bunny'
 import { VideoPlayer } from '@/components/video-player'
 import { LessonSidebar } from './lesson-sidebar'
+import { LessonListCollapsible } from './lesson-list-collapsible'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 
@@ -127,11 +128,7 @@ export default async function LessonPage({ params }: Props) {
       </div>
 
       {/* Sidebar - lesson list */}
-      <div className="w-full xl:w-[340px] xl:min-h-screen bg-white xl:border-l border-t xl:border-t-0 border-black/[0.06] overflow-y-auto">
-        <div className="p-4 border-b border-black/[0.06]">
-          <h3 className="font-poppins text-[15px] font-semibold text-brand-navy">Conteúdo do Curso</h3>
-          <p className="text-[12px] text-brand-navy-light-active mt-0.5">{completedSet.size}/{flatLessons.length} aulas concluídas</p>
-        </div>
+      <LessonListCollapsible subtitle={`${completedSet.size}/${flatLessons.length} aulas concluídas`}>
         <div>
           {sortedModules.map((mod, modIndex) => (
             <div key={mod.id}>
@@ -147,7 +144,7 @@ export default async function LessonPage({ params }: Props) {
                   <a
                     key={l.id}
                     href={`/curso/${params.courseId}/aula/${l.id}`}
-                    className={`flex items-center gap-3 px-4 py-3 text-[13px] border-b border-black/[0.03] transition-colors ${
+                    className={`flex items-center gap-3 px-4 py-3 min-h-[48px] text-[13px] border-b border-black/[0.03] transition-colors ${
                       isActive ? 'bg-brand-green-light border-l-[3px] border-l-brand-green' : 'hover:bg-[#f7faf8]'
                     }`}
                   >
@@ -169,7 +166,7 @@ export default async function LessonPage({ params }: Props) {
             </div>
           ))}
         </div>
-      </div>
+      </LessonListCollapsible>
     </div>
   )
 }

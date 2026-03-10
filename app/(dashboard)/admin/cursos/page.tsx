@@ -21,7 +21,7 @@ export default async function AdminCoursesPage() {
 
   return (
     <div>
-      <div className="mb-8 flex items-center justify-between">
+      <div className="mb-8 flex items-start justify-between gap-4">
         <div>
           <h1 className="page-title mb-1">Gerenciar Cursos</h1>
           <p className="page-subtitle">{items.length} curso{items.length !== 1 ? 's' : ''} cadastrado{items.length !== 1 ? 's' : ''}</p>

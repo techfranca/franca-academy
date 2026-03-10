@@ -61,7 +61,7 @@ export default async function EditCoursePage({ params }: Props) {
 
         {/* ── Left: Modules & Lessons ── */}
         <div>
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-start justify-between gap-3 mb-4">
             <div>
               <h2 className="font-poppins text-[17px] font-semibold text-brand-navy">Módulos e Aulas</h2>
               <p className="text-[12px] text-brand-navy/60 font-medium mt-0.5">
@@ -105,7 +105,7 @@ export default async function EditCoursePage({ params }: Props) {
                     </div>
                     <Link
                       href={`/admin/cursos/${course.id}/modulos/${mod.id}`}
-                      className="flex-shrink-0 flex items-center gap-1 text-[12px] font-medium text-brand-navy/60 hover:text-brand-navy transition-colors"
+                      className="flex-shrink-0 flex items-center gap-1 min-h-[44px] px-2 text-[12px] font-medium text-brand-navy/60 hover:text-brand-navy transition-colors"
                     >
                       <Pencil size={12} />
                       Editar
@@ -119,7 +119,7 @@ export default async function EditCoursePage({ params }: Props) {
                         <Link
                           key={lesson.id}
                           href={`/admin/cursos/${course.id}/modulos/${mod.id}/aulas/${lesson.id}`}
-                          className="flex items-center gap-3 px-4 py-2.5 border-b border-black/[0.03] hover:bg-[#f7faf8] transition-colors group"
+                          className="flex items-center gap-3 px-4 py-3 min-h-[48px] border-b border-black/[0.03] hover:bg-[#f7faf8] transition-colors group"
                         >
                           <PlayCircle size={14} className="text-brand-navy/40 flex-shrink-0" />
                           <span className="flex-1 text-[13px] text-brand-navy truncate group-hover:text-brand-green-dark transition-colors">
@@ -152,7 +152,7 @@ export default async function EditCoursePage({ params }: Props) {
                   <div className="px-3 py-2">
                     <Link
                       href={`/admin/cursos/${course.id}/modulos/${mod.id}/aulas/nova`}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-medium text-brand-navy/65 hover:text-brand-navy hover:bg-brand-navy-light/15 transition-colors"
+                      className="flex items-center gap-1.5 px-3 py-2.5 min-h-[44px] rounded-lg text-[12px] font-medium text-brand-navy/65 hover:text-brand-navy hover:bg-brand-navy-light/15 transition-colors"
                     >
                       <Plus size={13} />
                       Nova Aula
