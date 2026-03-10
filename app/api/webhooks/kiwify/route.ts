@@ -138,6 +138,9 @@ export async function POST(request: Request) {
           const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
             type: 'recovery',
             email,
+            options: {
+              redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/callback?next=/redefinir-senha`,
+            },
           })
 
           if (linkError || !linkData?.properties?.action_link) {
