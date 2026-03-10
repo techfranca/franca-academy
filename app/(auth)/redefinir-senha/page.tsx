@@ -17,39 +17,54 @@ export default function ResetPasswordPage() {
   const supabase = createClient()
 
   useEffect(() => {
-    // 1. Erro no hash (link inválido ou expirado)
-    const hash = window.location.hash
-    if (hash.includes('error=')) {
-      const params = new URLSearchParams(hash.slice(1))
-      const desc = params.get('error_description')?.replace(/\+/g, ' ') ?? 'O link é inválido ou expirou.'
-      setError(desc)
-      setReady(true)
-      return
-    }
+    async function initSession() {
+      const hash = window.location.hash
+      const search = window.location.search
 
-    // 2. PKCE flow: troca o code por sessão manualmente
-    const code = new URLSearchParams(window.location.search).get('code')
-    if (code) {
-      supabase.auth.exchangeCodeForSession(code).then(({ error }) => {
+      // 1. Erro no hash (link inválido ou expirado)
+      if (hash.includes('error=')) {
+        const params = new URLSearchParams(hash.slice(1))
+        const desc = params.get('error_description')?.replace(/\+/g, ' ') ?? 'O link é inválido ou expirou.'
+        setError(desc)
+        setReady(true)
+        return
+      }
+
+      // 2. Implicit flow: tokens direto no hash — lê e seta a sessão manualmente
+      if (hash.includes('access_token=')) {
+        const params = new URLSearchParams(hash.slice(1))
+        const access_token = params.get('access_token')
+        const refresh_token = params.get('refresh_token')
+        if (access_token && refresh_token) {
+          const { error } = await supabase.auth.setSession({ access_token, refresh_token })
+          if (error) setError('O link é inválido ou expirou.')
+          setReady(true)
+          return
+        }
+      }
+
+      // 3. PKCE flow: troca o code por sessão
+      const code = new URLSearchParams(search).get('code')
+      if (code) {
+        const { error } = await supabase.auth.exchangeCodeForSession(code)
         if (error) setError('O link é inválido ou expirou.')
         setReady(true)
-      })
-      return
+        return
+      }
+
+      // 4. Sessão já ativa (usuário logado acessando direto)
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session) {
+        setReady(true)
+        return
+      }
+
+      // 5. Nenhum token encontrado
+      setError('Link inválido. Solicite um novo link de acesso.')
+      setReady(true)
     }
 
-    // 3. Sessão já ativa (ex: usuário logado acessando direto)
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) setReady(true)
-    })
-
-    // 4. Implicit flow (hash tokens)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if ((event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN') && session) {
-        setReady(true)
-      }
-    })
-
-    return () => subscription.unsubscribe()
+    initSession()
   }, [])
 
   async function handleReset(e: React.FormEvent) {
