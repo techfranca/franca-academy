@@ -35,10 +35,13 @@ export default function LoginPage() {
   return (
     <div>
       <div className="mb-6 text-center">
+        <p className="font-montserrat text-[10px] font-semibold text-brand-sage tracking-[0.2em] uppercase mb-2">
+          Franca Academy
+        </p>
         <h1 className="font-poppins font-bold text-[20px] text-brand-navy mb-1">
           Entrar na conta
         </h1>
-        <p className="font-montserrat text-[13px] text-brand-navy-light-active">
+        <p className="font-montserrat text-[13px] text-brand-navy/55">
           Bem-vindo(a) de volta
         </p>
       </div>

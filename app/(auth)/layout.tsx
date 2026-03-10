@@ -8,13 +8,20 @@ export default function AuthLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="min-h-dvh bg-gradient-to-b from-[#e2f5e9] via-[#eef8f2] to-[#e8f2ec] flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8">
+    <div className="relative min-h-dvh bg-gradient-to-b from-[#e2f5e9] via-[#eef8f2] to-[#e8f2ec] flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8 overflow-hidden">
+
+      {/* Decorativos nos cantos */}
+      <div className="absolute top-0 right-0 w-[360px] h-[360px] rounded-full bg-brand-green/20 blur-[90px] pointer-events-none translate-x-1/3 -translate-y-1/3" />
+      <div className="absolute bottom-0 left-0 w-[300px] h-[300px] rounded-full bg-brand-sage/25 blur-[80px] pointer-events-none -translate-x-1/3 translate-y-1/3" />
 
       <div className="w-full max-w-[420px] flex flex-col items-center">
 
-        {/* Logo flutuando acima do card */}
-        <div className="w-[60px] h-[60px] rounded-[18px] bg-brand-navy flex items-center justify-center shadow-[0_8px_24px_rgba(8,21,52,0.22)] mb-[-30px] z-10 border-4 border-white/80">
-          <Image src="/logo.png" alt="Franca Academy" width={34} height={34} />
+        {/* Logo solta com drop-shadow */}
+        <div
+          className="mb-[-28px] z-10"
+          style={{ filter: 'drop-shadow(0 6px 18px rgba(8,21,52,0.22))' }}
+        >
+          <Image src="/logo.png" alt="Franca Academy" width={56} height={56} />
         </div>
 
         {/* Card com borda gradiente sutil */}
@@ -27,7 +34,7 @@ export default function AuthLayout({
       </div>
 
       {/* Footer */}
-      <p className="font-montserrat text-[11px] text-brand-navy-light-active/50 mt-6">
+      <p className="font-montserrat text-[11px] text-brand-navy/35 mt-6">
         © {new Date().getFullYear()} Franca Assessoria
       </p>
 
