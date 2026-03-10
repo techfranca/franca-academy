@@ -17,7 +17,7 @@ export default function ResetPasswordPage() {
   const supabase = createClient()
 
   useEffect(() => {
-    // Verifica se há erro no hash (ex: link expirado)
+    // 1. Erro no hash (link inválido ou expirado)
     const hash = window.location.hash
     if (hash.includes('error=')) {
       const params = new URLSearchParams(hash.slice(1))
@@ -27,12 +27,22 @@ export default function ResetPasswordPage() {
       return
     }
 
-    // Verifica se já há sessão ativa (fluxo PKCE via /api/auth/callback)
+    // 2. PKCE flow: troca o code por sessão manualmente
+    const code = new URLSearchParams(window.location.search).get('code')
+    if (code) {
+      supabase.auth.exchangeCodeForSession(code).then(({ error }) => {
+        if (error) setError('O link é inválido ou expirou.')
+        setReady(true)
+      })
+      return
+    }
+
+    // 3. Sessão já ativa (ex: usuário logado acessando direto)
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) setReady(true)
     })
 
-    // Captura o evento de implicit flow (link gerado via generateLink)
+    // 4. Implicit flow (hash tokens)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if ((event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN') && session) {
         setReady(true)
