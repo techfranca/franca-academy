@@ -17,6 +17,16 @@ export default function ResetPasswordPage() {
   const supabase = createClient()
 
   useEffect(() => {
+    // Verifica se há erro no hash (ex: link expirado)
+    const hash = window.location.hash
+    if (hash.includes('error=')) {
+      const params = new URLSearchParams(hash.slice(1))
+      const desc = params.get('error_description')?.replace(/\+/g, ' ') ?? 'O link é inválido ou expirou.'
+      setError(desc)
+      setReady(true)
+      return
+    }
+
     // Verifica se já há sessão ativa (fluxo PKCE via /api/auth/callback)
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) setReady(true)
