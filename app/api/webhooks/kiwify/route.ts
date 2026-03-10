@@ -139,7 +139,7 @@ export async function POST(request: Request) {
             type: 'recovery',
             email,
             options: {
-              redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/callback?next=/redefinir-senha`,
+              redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/redefinir-senha`,
             },
           })
 

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { Eye, EyeOff, Lock } from 'lucide-react'
@@ -12,8 +12,25 @@ export default function ResetPasswordPage() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
+  const [ready, setReady] = useState(false)
   const router = useRouter()
   const supabase = createClient()
+
+  useEffect(() => {
+    // Verifica se já há sessão ativa (fluxo PKCE via /api/auth/callback)
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) setReady(true)
+    })
+
+    // Captura o evento de implicit flow (link gerado via generateLink)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if ((event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN') && session) {
+        setReady(true)
+      }
+    })
+
+    return () => subscription.unsubscribe()
+  }, [])
 
   async function handleReset(e: React.FormEvent) {
     e.preventDefault()
@@ -44,6 +61,14 @@ export default function ResetPasswordPage() {
       router.push('/cursos')
       router.refresh()
     }, 2000)
+  }
+
+  if (!ready) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="w-7 h-7 border-2 border-brand-navy/20 border-t-brand-navy rounded-full animate-spin" />
+      </div>
+    )
   }
 
   if (success) {
