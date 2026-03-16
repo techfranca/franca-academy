@@ -15,7 +15,7 @@ export default async function EditCoursePage({ params }: Props) {
   const { data: course } = await supabase
     .from('courses')
     .select(`
-      id, title, description, slug, thumbnail_url, kiwify_product_id, is_active,
+      id, title, description, slug, thumbnail_url, kiwify_product_id, is_active, price, checkout_url,
       modules (
         id, title, description, order_index,
         lessons ( id, title, video_id, duration_seconds, order_index, is_free )
