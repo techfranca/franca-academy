@@ -4,30 +4,9 @@ import { generatePassword } from '@/lib/utils'
 import { sendWelcomeEmail } from '@/lib/resend'
 import crypto from 'crypto'
 
-// Kiwify webhook event types
-type KiwifyEvent = 'order_approved' | 'order_refunded' | 'order_chargedback'
-
-interface KiwifyWebhookPayload {
-  order_id: string
-  order_status: KiwifyEvent
-  product: {
-    product_id: string
-    product_name: string
-  }
-  Customer: {
-    full_name: string
-    email: string
-  }
-  Subscription?: {
-    id: string
-    status: string
-  }
-  signature?: string
-}
-
 function verifyKiwifySignature(payload: string, signature: string, secret: string): boolean {
   const expectedSignature = crypto
-    .createHmac('sha256', secret)
+    .createHmac('sha1', secret)
     .update(payload)
     .digest('hex')
 
@@ -48,25 +27,40 @@ export async function POST(request: Request) {
     }
 
     const rawBody = await request.text()
-    const body: KiwifyWebhookPayload = JSON.parse(rawBody)
+    const payload = JSON.parse(rawBody)
 
-    const signature = request.headers.get('x-kiwify-signature') || body.signature || ''
+    // Kiwify sends signature at root level or in header
+    const signature =
+      request.headers.get('x-kiwify-signature') ||
+      payload.signature ||
+      ''
+
     if (!signature) {
+      console.error('Missing signature')
       return NextResponse.json({ error: 'Missing signature' }, { status: 401 })
     }
 
     if (!verifyKiwifySignature(rawBody, signature, secret)) {
+      console.error('Invalid signature')
       return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
     }
 
+    // Kiwify wraps everything inside "order"
+    const order = payload.order
+    if (!order) {
+      console.error('Missing order in payload')
+      return NextResponse.json({ error: 'Invalid payload' }, { status: 400 })
+    }
+
+    const eventType = order.webhook_event_type as string
     const supabase = createServiceClient()
 
-    if (body.order_status === 'order_approved') {
-      const email = body.Customer.email.toLowerCase().trim()
-      const name = body.Customer.full_name
-      const kiwifyProductId = body.product.product_id
-      const kiwifyOrderId = body.order_id
-      const courseName = body.product.product_name
+    if (eventType === 'order_approved') {
+      const email = order.Customer.email.toLowerCase().trim()
+      const name = order.Customer.full_name
+      const kiwifyProductId = order.Product.product_id
+      const kiwifyOrderId = order.order_id
+      const courseName = order.Product.product_name
 
       // 1. Find the course mapped to this Kiwify product
       const { data: course } = await supabase
@@ -77,7 +71,6 @@ export async function POST(request: Request) {
 
       if (!course) {
         console.error(`No course found for Kiwify product: ${kiwifyProductId}`)
-        // Still return 200 so Kiwify doesn't retry
         return NextResponse.json({ message: 'No course mapped to this product' })
       }
 
@@ -88,15 +81,11 @@ export async function POST(request: Request) {
       )
 
       let userId: string
-      let password: string | null = null
-
       let isNewUser = false
 
       if (existingUser) {
-        // User already exists, just add the purchase
         userId = existingUser.id
       } else {
-        // Create new user with a random password (never shared with the user)
         const { data: newUser, error: createError } = await supabase.auth.admin.createUser({
           email,
           password: generatePassword(16),
@@ -106,17 +95,14 @@ export async function POST(request: Request) {
 
         if (createError || !newUser.user) {
           console.error('Error creating user:', createError)
-          return NextResponse.json(
-            { error: 'Failed to create user' },
-            { status: 500 }
-          )
+          return NextResponse.json({ error: 'Failed to create user' }, { status: 500 })
         }
 
         userId = newUser.user.id
         isNewUser = true
       }
 
-      // 3. Create purchase record (upsert to avoid duplicates)
+      // 3. Create purchase record
       const { error: purchaseError } = await supabase
         .from('user_purchases')
         .upsert({
@@ -132,7 +118,7 @@ export async function POST(request: Request) {
         console.error('Error creating purchase:', purchaseError)
       }
 
-      // 4. Send welcome email with first-access link (only for new users)
+      // 4. Send welcome email (only for new users)
       if (isNewUser) {
         try {
           const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
@@ -155,7 +141,6 @@ export async function POST(request: Request) {
           }
         } catch (emailError) {
           console.error('Error sending welcome email:', emailError)
-          // Don't fail the webhook for email errors
         }
       }
 
@@ -167,11 +152,10 @@ export async function POST(request: Request) {
       })
     }
 
-    if (body.order_status === 'order_refunded' || body.order_status === 'order_chargedback') {
-      const email = body.Customer.email.toLowerCase().trim()
-      const kiwifyProductId = body.product.product_id
+    if (eventType === 'order_refunded' || eventType === 'order_chargedback') {
+      const email = order.Customer.email.toLowerCase().trim()
+      const kiwifyProductId = order.Product.product_id
 
-      // Find user and course
       const { data: existingUsers } = await supabase.auth.admin.listUsers()
       const user = existingUsers?.users?.find(
         u => u.email?.toLowerCase() === email
@@ -184,7 +168,6 @@ export async function POST(request: Request) {
         .single()
 
       if (user && course) {
-        // Remove purchase
         await supabase
           .from('user_purchases')
           .delete()
@@ -198,9 +181,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ message: 'Event received' })
   } catch (error) {
     console.error('Webhook error:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
