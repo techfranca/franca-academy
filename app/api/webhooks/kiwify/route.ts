@@ -66,10 +66,10 @@ export async function POST(request: Request) {
       }
     }
 
-    // Kiwify envolve tudo dentro de "order"
-    const order = payload.order
-    if (!order) {
-      console.error('[Kiwify Webhook] Missing order in payload')
+    // Kiwify pode enviar dados na raiz ou dentro de "order"
+    const order = payload.order ?? payload
+    if (!order?.webhook_event_type && !order?.Customer) {
+      console.error('[Kiwify Webhook] Missing order in payload:', JSON.stringify(payload))
       return NextResponse.json({ error: 'Invalid payload' }, { status: 400 })
     }
 
