@@ -9,7 +9,7 @@ export default async function CoursesPage() {
   const { data: courses } = await supabase
     .from('courses')
     .select(`
-      id, title, description, thumbnail_url, slug,
+      id, title, description, thumbnail_url, slug, price, checkout_url,
       modules ( id, lessons ( id ) )
     `)
     .eq('is_active', true)
@@ -42,6 +42,8 @@ export default async function CoursesPage() {
       totalLessons,
       completedLessons,
       purchased: purchasedCourseIds.has(course.id),
+      price: (course as any).price ?? null,
+      checkoutUrl: (course as any).checkout_url ?? null,
     }
   })
 

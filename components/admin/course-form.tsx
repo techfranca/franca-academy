@@ -1,9 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { Save } from 'lucide-react'
+import { Save, Upload, X, ImageIcon } from 'lucide-react'
 
 interface CourseFormProps {
   course?: {
@@ -14,6 +14,8 @@ interface CourseFormProps {
     thumbnail_url: string | null
     kiwify_product_id: string | null
     is_active: boolean
+    price: number | null
+    checkout_url: string | null
   }
 }
 
@@ -37,8 +39,53 @@ export function CourseForm({ course }: CourseFormProps) {
   const [thumbnailUrl, setThumbnailUrl] = useState(course?.thumbnail_url || '')
   const [kiwifyProductId, setKiwifyProductId] = useState(course?.kiwify_product_id || '')
   const [isActive, setIsActive] = useState(course?.is_active ?? true)
+  const [price, setPrice] = useState<string>(course?.price?.toString() || '')
+  const [checkoutUrl, setCheckoutUrl] = useState(course?.checkout_url || '')
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState('')
+  const [uploadingImage, setUploadingImage] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  async function handleImageUpload(file: File) {
+    if (!file.type.startsWith('image/')) {
+      setMessage('Erro: Selecione um arquivo de imagem.')
+      return
+    }
+    setUploadingImage(true)
+    const ext = file.name.split('.').pop()
+    const path = `${course?.id || 'new'}/${Date.now()}.${ext}`
+    const { error: uploadError } = await supabase.storage
+      .from('course-covers')
+      .upload(path, file, { upsert: true })
+    if (uploadError) {
+      setMessage(`Erro no upload: ${uploadError.message}`)
+      setUploadingImage(false)
+      return
+    }
+    const { data } = supabase.storage.from('course-covers').getPublicUrl(path)
+    setThumbnailUrl(data.publicUrl)
+    // If editing, save immediately
+    if (isEditing) {
+      await supabase.from('courses').update({ thumbnail_url: data.publicUrl }).eq('id', course.id)
+      router.refresh()
+    }
+    setUploadingImage(false)
+  }
+
+  async function handleRemoveImage() {
+    if (!thumbnailUrl) return
+    // Extract path from URL to delete from storage
+    const url = new URL(thumbnailUrl)
+    const pathParts = url.pathname.split('/course-covers/')
+    if (pathParts.length > 1) {
+      await supabase.storage.from('course-covers').remove([pathParts[1]])
+    }
+    setThumbnailUrl('')
+    if (isEditing) {
+      await supabase.from('courses').update({ thumbnail_url: null }).eq('id', course.id)
+      router.refresh()
+    }
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -52,6 +99,8 @@ export function CourseForm({ course }: CourseFormProps) {
       thumbnail_url: thumbnailUrl || null,
       kiwify_product_id: kiwifyProductId || null,
       is_active: isActive,
+      price: price ? parseFloat(price) : null,
+      checkout_url: checkoutUrl || null,
     }
 
     if (isEditing) {
@@ -129,15 +178,89 @@ export function CourseForm({ course }: CourseFormProps) {
         />
       </div>
 
+      {/* Thumbnail upload */}
       <div>
-        <label className="block text-[13px] font-semibold text-brand-navy mb-1.5">URL da Thumbnail</label>
+        <label className="block text-[13px] font-semibold text-brand-navy mb-1.5">Capa do curso</label>
+        {thumbnailUrl ? (
+          <div className="relative rounded-xl overflow-hidden border border-brand-navy/10">
+            <img src={thumbnailUrl} alt="Capa" className="w-full h-40 object-cover" />
+            <button
+              type="button"
+              onClick={handleRemoveImage}
+              className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/60 hover:bg-black/80 flex items-center justify-center transition-colors"
+              title="Remover imagem"
+            >
+              <X size={14} className="text-white" />
+            </button>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploadingImage}
+            className="w-full h-32 rounded-xl border-2 border-dashed border-brand-navy/20 hover:border-brand-green hover:bg-brand-green-light/40 flex flex-col items-center justify-center gap-2 transition-colors disabled:opacity-50 cursor-pointer"
+          >
+            {uploadingImage ? (
+              <div className="w-5 h-5 border-2 border-brand-navy/30 border-t-brand-navy rounded-full animate-spin" />
+            ) : (
+              <>
+                <div className="w-9 h-9 rounded-full bg-brand-navy-light/20 flex items-center justify-center">
+                  <ImageIcon size={16} className="text-brand-navy/50" />
+                </div>
+                <span className="text-[12px] text-brand-navy/50 font-medium">Clique para enviar imagem</span>
+                <span className="text-[11px] text-brand-navy/30">PNG, JPG, WEBP</span>
+              </>
+            )}
+          </button>
+        )}
         <input
-          type="text"
-          value={thumbnailUrl}
-          onChange={(e) => setThumbnailUrl(e.target.value)}
-          className="input-field"
-          placeholder="https://..."
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={(e) => {
+            const file = e.target.files?.[0]
+            if (file) handleImageUpload(file)
+            e.target.value = ''
+          }}
         />
+        {thumbnailUrl && (
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploadingImage}
+            className="mt-2 flex items-center gap-1.5 text-[12px] text-brand-navy/50 hover:text-brand-navy transition-colors disabled:opacity-50"
+          >
+            <Upload size={12} />
+            {uploadingImage ? 'Enviando...' : 'Trocar imagem'}
+          </button>
+        )}
+      </div>
+
+      {/* Price + checkout */}
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="block text-[13px] font-semibold text-brand-navy mb-1.5">Preço (R$)</label>
+          <input
+            type="number"
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+            className="input-field"
+            placeholder="197,00"
+            min={0}
+            step={0.01}
+          />
+        </div>
+        <div>
+          <label className="block text-[13px] font-semibold text-brand-navy mb-1.5">URL do Checkout</label>
+          <input
+            type="text"
+            value={checkoutUrl}
+            onChange={(e) => setCheckoutUrl(e.target.value)}
+            className="input-field"
+            placeholder="https://kiwify.app/..."
+          />
+        </div>
       </div>
 
       <div>

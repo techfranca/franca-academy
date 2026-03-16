@@ -5,7 +5,7 @@ import { VideoPlayer } from '@/components/video-player'
 import { LessonSidebar } from './lesson-sidebar'
 import { LessonListCollapsible } from './lesson-list-collapsible'
 import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, FileText, Download } from 'lucide-react'
 
 interface Props {
   params: { courseId: string; lessonId: string }
@@ -27,7 +27,7 @@ export default async function LessonPage({ params }: Props) {
   const { data: lesson } = await supabase
     .from('lessons')
     .select(`
-      id, title, description, video_url, video_id, duration_seconds, order_index, module_id,
+      id, title, description, video_url, video_id, duration_seconds, order_index, module_id, pdf_url, pdf_name,
       modules!inner ( id, title, order_index, course_id )
     `)
     .eq('id', params.lessonId)
@@ -115,6 +115,30 @@ export default async function LessonPage({ params }: Props) {
               <p className="text-[14px] text-brand-navy-light-active leading-relaxed">{lesson.description}</p>
             )}
           </div>
+
+          {(lesson as any).pdf_url && (
+            <div className="mt-5">
+              <h2 className="text-[13px] font-semibold text-brand-navy uppercase tracking-wider mb-3">Material de apoio</h2>
+              <a
+                href={(lesson as any).pdf_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                download
+                className="inline-flex items-center gap-3 p-4 rounded-xl border border-brand-navy/10 bg-brand-green-light/60 hover:bg-brand-green-light transition-colors group"
+              >
+                <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center shadow-sm flex-shrink-0">
+                  <FileText size={18} className="text-brand-green-dark" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[14px] font-semibold text-brand-navy truncate">
+                    {(lesson as any).pdf_name || 'Material da aula'}
+                  </p>
+                  <p className="text-[12px] text-brand-navy/50">Clique para baixar o PDF</p>
+                </div>
+                <Download size={16} className="text-brand-sage group-hover:text-brand-green-dark transition-colors flex-shrink-0" />
+              </a>
+            </div>
+          )}
 
           <LessonSidebar
             lessonId={params.lessonId}

@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { BookOpen, Clock, CheckCircle2, ArrowRight, Lock } from 'lucide-react'
+import { BookOpen, Clock, CheckCircle2, ArrowRight, Lock, ShoppingCart } from 'lucide-react'
 
 interface CourseCardProps {
   id: string
@@ -9,6 +9,8 @@ interface CourseCardProps {
   totalLessons: number
   completedLessons: number
   purchased: boolean
+  price?: number | null
+  checkoutUrl?: string | null
 }
 
 export function CourseCard({
@@ -19,12 +21,18 @@ export function CourseCard({
   totalLessons,
   completedLessons,
   purchased,
+  price,
+  checkoutUrl,
 }: CourseCardProps) {
   const progress = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0
 
   if (!purchased) {
+    const formattedPrice = price != null
+      ? price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+      : null
+
     return (
-      <div className="card-static overflow-hidden opacity-70">
+      <div className="card-static overflow-hidden">
         <div className="h-40 sm:h-44 bg-gradient-to-br from-brand-navy-light to-brand-navy-light/60 flex items-center justify-center relative">
           {thumbnailUrl ? (
             <img src={thumbnailUrl} alt={title} className="w-full h-full object-cover opacity-50" />
@@ -40,10 +48,26 @@ export function CourseCard({
         <div className="p-5">
           <h3 className="font-poppins text-[16px] font-semibold text-brand-navy mb-1.5">{title}</h3>
           <p className="text-[13px] text-brand-navy-light-active line-clamp-2">{description}</p>
-          <div className="mt-4 inline-flex items-center gap-1.5 text-[13px] text-brand-sage font-semibold">
-            <Lock size={13} />
-            Curso bloqueado
+          <div className="mt-4 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-1.5 text-[13px] text-brand-sage font-semibold">
+              <Lock size={13} />
+              Curso bloqueado
+            </div>
+            {formattedPrice && (
+              <span className="text-[15px] font-bold text-brand-navy font-poppins">{formattedPrice}</span>
+            )}
           </div>
+          {checkoutUrl && (
+            <a
+              href={checkoutUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-3 btn-primary flex items-center justify-center gap-2 text-[13px]"
+            >
+              <ShoppingCart size={14} />
+              Adquirir curso
+            </a>
+          )}
         </div>
       </div>
     )

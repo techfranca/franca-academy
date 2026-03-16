@@ -1,9 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { Save } from 'lucide-react'
+import { Save, Upload, X, FileText } from 'lucide-react'
 
 interface LessonFormProps {
   moduleId: string
@@ -17,6 +17,8 @@ interface LessonFormProps {
     duration_seconds: number | null
     order_index: number
     is_free: boolean
+    pdf_url: string | null
+    pdf_name: string | null
   }
   nextOrderIndex: number
 }
@@ -40,8 +42,52 @@ export function LessonForm({ moduleId, courseId, lesson, nextOrderIndex }: Lesso
   const [durationSeconds, setDurationSeconds] = useState<number | ''>(lesson?.duration_seconds ?? '')
   const [orderIndex, setOrderIndex] = useState(lesson?.order_index ?? nextOrderIndex)
   const [isFree, setIsFree] = useState(lesson?.is_free ?? false)
+  const [pdfUrl, setPdfUrl] = useState(lesson?.pdf_url || '')
+  const [pdfName, setPdfName] = useState(lesson?.pdf_name || '')
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState('')
+  const [uploadingPdf, setUploadingPdf] = useState(false)
+  const pdfInputRef = useRef<HTMLInputElement>(null)
+
+  async function handlePdfUpload(file: File) {
+    if (file.type !== 'application/pdf') {
+      setMessage('Erro: Selecione um arquivo PDF.')
+      return
+    }
+    setUploadingPdf(true)
+    const path = `${lesson?.id || 'new'}/${Date.now()}_${file.name}`
+    const { error: uploadError } = await supabase.storage
+      .from('lesson-materials')
+      .upload(path, file, { upsert: true })
+    if (uploadError) {
+      setMessage(`Erro no upload: ${uploadError.message}`)
+      setUploadingPdf(false)
+      return
+    }
+    const { data } = supabase.storage.from('lesson-materials').getPublicUrl(path)
+    setPdfUrl(data.publicUrl)
+    setPdfName(file.name)
+    if (isEditing) {
+      await supabase.from('lessons').update({ pdf_url: data.publicUrl, pdf_name: file.name }).eq('id', lesson!.id)
+      router.refresh()
+    }
+    setUploadingPdf(false)
+  }
+
+  async function handleRemovePdf() {
+    if (!pdfUrl) return
+    const url = new URL(pdfUrl)
+    const pathParts = url.pathname.split('/lesson-materials/')
+    if (pathParts.length > 1) {
+      await supabase.storage.from('lesson-materials').remove([pathParts[1]])
+    }
+    setPdfUrl('')
+    setPdfName('')
+    if (isEditing) {
+      await supabase.from('lessons').update({ pdf_url: null, pdf_name: null }).eq('id', lesson!.id)
+      router.refresh()
+    }
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -57,6 +103,8 @@ export function LessonForm({ moduleId, courseId, lesson, nextOrderIndex }: Lesso
       order_index: orderIndex,
       is_free: isFree,
       module_id: moduleId,
+      pdf_url: pdfUrl || null,
+      pdf_name: pdfName || null,
     }
 
     if (isEditing) {
@@ -113,6 +161,70 @@ export function LessonForm({ moduleId, courseId, lesson, nextOrderIndex }: Lesso
               className="input-field resize-none"
               rows={4}
               placeholder="Descrição da aula (opcional)"
+            />
+          </div>
+
+          {/* PDF Material */}
+          <div>
+            <label className="block text-[13px] font-semibold text-brand-navy mb-1.5">Material PDF</label>
+            {pdfUrl ? (
+              <div className="flex items-center gap-3 p-3 rounded-xl border border-brand-navy/10 bg-brand-green-light/40">
+                <div className="w-9 h-9 rounded-lg bg-brand-green-light flex items-center justify-center flex-shrink-0">
+                  <FileText size={16} className="text-brand-green-dark" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[13px] font-semibold text-brand-navy truncate">{pdfName || 'Material.pdf'}</p>
+                  <a href={pdfUrl} target="_blank" rel="noopener noreferrer" className="text-[11px] text-brand-sage hover:underline">
+                    Ver arquivo
+                  </a>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => pdfInputRef.current?.click()}
+                    disabled={uploadingPdf}
+                    className="p-1.5 rounded-lg hover:bg-brand-navy/5 text-brand-navy/50 hover:text-brand-navy transition-colors"
+                    title="Trocar PDF"
+                  >
+                    <Upload size={14} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleRemovePdf}
+                    className="p-1.5 rounded-lg hover:bg-red-50 text-brand-navy/50 hover:text-red-500 transition-colors"
+                    title="Remover PDF"
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => pdfInputRef.current?.click()}
+                disabled={uploadingPdf}
+                className="w-full h-20 rounded-xl border-2 border-dashed border-brand-navy/20 hover:border-brand-green hover:bg-brand-green-light/40 flex items-center justify-center gap-3 transition-colors disabled:opacity-50 cursor-pointer"
+              >
+                {uploadingPdf ? (
+                  <div className="w-5 h-5 border-2 border-brand-navy/30 border-t-brand-navy rounded-full animate-spin" />
+                ) : (
+                  <>
+                    <FileText size={18} className="text-brand-navy/40" />
+                    <span className="text-[13px] text-brand-navy/50 font-medium">Clique para enviar PDF</span>
+                  </>
+                )}
+              </button>
+            )}
+            <input
+              ref={pdfInputRef}
+              type="file"
+              accept="application/pdf"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0]
+                if (file) handlePdfUpload(file)
+                e.target.value = ''
+              }}
             />
           </div>
         </div>
