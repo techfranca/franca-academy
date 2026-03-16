@@ -157,15 +157,27 @@ export async function POST(request: Request) {
       }
 
       // 4. Enviar email de boas-vindas (apenas para novos usuários)
-      if (isNewUser && generatedPassword) {
+      if (isNewUser) {
         try {
-          await sendWelcomeEmail({
-            to: email,
-            name,
-            password: generatedPassword,
-            courseName: course.title,
+          const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
+            type: 'recovery',
+            email,
+            options: {
+              redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/redefinir-senha`,
+            },
           })
-          console.log('[Kiwify Webhook] Welcome email sent to:', email)
+
+          if (linkError || !linkData?.properties?.action_link) {
+            console.error('[Kiwify Webhook] Error generating access link:', linkError)
+          } else {
+            await sendWelcomeEmail({
+              to: email,
+              name,
+              accessLink: linkData.properties.action_link,
+              courseName: course.title,
+            })
+            console.log('[Kiwify Webhook] Welcome email sent to:', email)
+          }
         } catch (emailError) {
           console.error('[Kiwify Webhook] Error sending welcome email:', emailError)
         }
