@@ -30,7 +30,7 @@ export default async function EditLessonPage({ params }: Props) {
 
   const { data: lesson } = await supabase
     .from('lessons')
-    .select('id, title, description, video_id, video_url, duration_seconds, order_index, is_free')
+    .select('id, title, description, video_id, video_url, duration_seconds, order_index, is_free, pdf_url, pdf_name')
     .eq('id', params.lessonId)
     .single()
 
